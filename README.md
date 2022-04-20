@@ -9,10 +9,10 @@ The offset of the lane center from the center of the image (converted from pixel
 
 # How to run :
 open git bash in the project folder and enter this line in it :  
- use ./run.sh --src <src> --dst <dst> --debug <debug> 
+ use ./run.sh --src <src> --dst <dst> --Debug <debug> 
 * enter the source path after src
 * enter the destination path after dst
-* enter the debug mode after debug (0 to diable - 1 to enable) 0 by default
+* enter the debug mode after Debug (0 to diable - 1 to enable) 0 by default
 
 
 
