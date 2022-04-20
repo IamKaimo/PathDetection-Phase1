@@ -2,7 +2,7 @@
 
 src=""
 dst=""
-debug=""
+debug="0"
 
 function show_help {
     echo "usage:  $BASH_SOURCE --src <src> --dst <dst> --debug <debug>"
