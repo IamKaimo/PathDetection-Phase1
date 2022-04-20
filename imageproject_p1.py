@@ -23,6 +23,11 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip
+import sys
+inputPath = sys.argv[1]
+outputPath = sys.argv[2]
+debug = int(sys.argv[3])
+
 
 """# Step 1: Prespective Transformation Function (Bird's Eye)"""
 
@@ -327,13 +332,10 @@ def process_image(img):
     reverse_view_img = bird_backward(highlight_lane_img)
     final_img = cv2.addWeighted(img, 1, reverse_view_img, 1, 0)
     #Step Five: Show Step By Step Frame, Curvature, and Distance of Center (((IF THE DEBUG FLAG EQUALS ONE)))
-    if(debug == 1):
+    if(debug):
       final_img = prepare_frame(final_img, bird_img, gray_img, lines_img, window_img, highlight_lane_img, Lc,Rc, pos )
     return final_img
 
-video = ["challenge", "project"]
-index = 1
-debug = 1  #FLAG
-clip = VideoFileClip("{}_video.mp4".format(video[index]))
+clip = VideoFileClip(inputPath)
 out_clip = clip.fl_image(process_image)
-out_clip.write_videofile("out_{}_video.mp4".format(video[index]), audio=False)
+out_clip.write_videofile(outputPath, audio=False)
