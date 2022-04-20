@@ -8,7 +8,7 @@ The offset of the lane center from the center of the image (converted from pixel
 
 
 # How to run :
-open git bash in the project folder and enter this line in it 
+open git bash in the project folder and enter this line in it :  
 use ./run.sh --src <src> --dst <dst> --debug <debug>
 * src is the input path
 * dst is the output path
