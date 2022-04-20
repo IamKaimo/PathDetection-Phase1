@@ -14,20 +14,14 @@ Assume the camera is mounted at the center of the car, such that the lane center
 
 The offset of the lane center from the center of the image (converted from pixels to meters) is your distance from the center of the lane.
 
-# New Section
-
 # Step 0: Import Libraries & Debug Flag
 """
 
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import glob
 from moviepy.editor import VideoFileClip
-import sys
-inputPath = sys.argv[1]
-outputPath = sys.argv[2]
-debug = int(sys.argv[3])
-
 
 """# Step 1: Prespective Transformation Function (Bird's Eye)"""
 
@@ -268,7 +262,7 @@ class LaneLines:
 
 """#Step 4: Adjust The Original Frame"""
 
-def prepare_frame(blend_on_road, bird_img, gray_img, lines_img, window_img, highlight_img, Rcurve, Lcurve, pos):
+def prepare_frame(blend_on_road, bird_img, gray_img, lines_img, window_img, highlight_img, Rcurve, Lcurve, pos, debug):
     #Prepare the final pretty pretty output blend, given all intermediate pipeline images
     h, w = blend_on_road.shape[:2]
 
@@ -277,32 +271,33 @@ def prepare_frame(blend_on_road, bird_img, gray_img, lines_img, window_img, high
 
     off_x, off_y = 15, 15
 
-    # add a gray rectangle at the right
-    mask = blend_on_road.copy()
-    mask = cv2.rectangle(mask, pt1=(w-(thumb_w+off_x*2), 0), pt2=(w, h), color=(50, 50, 50), thickness=cv2.FILLED)
-    blend_on_road = cv2.addWeighted(src1=mask, alpha=0.2, src2=blend_on_road, beta=0.8, gamma=0)
+    if(debug == 1):
+      # add a gray rectangle at the right
+      mask = blend_on_road.copy()
+      mask = cv2.rectangle(mask, pt1=(w-(thumb_w+off_x*2), 0), pt2=(w, h), color=(50, 50, 50), thickness=cv2.FILLED)
+      blend_on_road = cv2.addWeighted(src1=mask, alpha=0.2, src2=blend_on_road, beta=0.8, gamma=0)
 
-    # add thumbnail of bird
-    thumb_bird = cv2.resize(bird_img, dsize=(thumb_w, thumb_h))
-    blend_on_road[off_y:thumb_h+off_y, w-(thumb_w+off_x):w-off_x, :] = thumb_bird
+      # add thumbnail of bird
+      thumb_bird = cv2.resize(bird_img, dsize=(thumb_w, thumb_h))
+      blend_on_road[off_y:thumb_h+off_y, w-(thumb_w+off_x):w-off_x, :] = thumb_bird
 
-    # add thumbnail of gray
-    thumb_gray = cv2.resize(gray_img, dsize=(thumb_w, thumb_h))
-    thumb_gray = np.dstack([thumb_gray, thumb_gray, thumb_gray]) 
-    blend_on_road[thumb_h+(off_y*2):(thumb_h*2)+(off_y*2), w-(thumb_w+off_x):w-off_x, :] = thumb_gray
+      # add thumbnail of gray
+      thumb_gray = cv2.resize(gray_img, dsize=(thumb_w, thumb_h))
+      thumb_gray = np.dstack([thumb_gray, thumb_gray, thumb_gray]) 
+      blend_on_road[thumb_h+(off_y*2):(thumb_h*2)+(off_y*2), w-(thumb_w+off_x):w-off_x, :] = thumb_gray
 
-    # add thumbnail of lines
-    thumb_lines = cv2.resize(lines_img, dsize=(thumb_w, thumb_h))
-    thumb_lines = np.dstack([thumb_lines, thumb_lines, thumb_lines])
-    blend_on_road[(thumb_h*2)+(off_y*3):(thumb_h*3)+(off_y*3), w-(thumb_w+off_x):w-off_x, :] = thumb_lines
-    
-    # add thumbnail of window
-    thumb_window = cv2.resize(window_img, dsize=(thumb_w, thumb_h))
-    blend_on_road[(thumb_h*3)+(off_y*4):(thumb_h*4)+(off_y*4), w-(thumb_w+off_x):w-off_x, :] = thumb_window
+      # add thumbnail of lines
+      thumb_lines = cv2.resize(lines_img, dsize=(thumb_w, thumb_h))
+      thumb_lines = np.dstack([thumb_lines, thumb_lines, thumb_lines])
+      blend_on_road[(thumb_h*2)+(off_y*3):(thumb_h*3)+(off_y*3), w-(thumb_w+off_x):w-off_x, :] = thumb_lines
+      
+      # add thumbnail of window
+      thumb_window = cv2.resize(window_img, dsize=(thumb_w, thumb_h))
+      blend_on_road[(thumb_h*3)+(off_y*4):(thumb_h*4)+(off_y*4), w-(thumb_w+off_x):w-off_x, :] = thumb_window
 
-    # add thumbnail of highlight
-    thumb_highlight = cv2.resize(highlight_img, dsize=(thumb_w, thumb_h))
-    blend_on_road[(thumb_h*4)+(off_y*5):(thumb_h*5)+(off_y*5), w-(thumb_w+off_x):w-off_x, :] = thumb_highlight
+      # add thumbnail of highlight
+      thumb_highlight = cv2.resize(highlight_img, dsize=(thumb_w, thumb_h))
+      blend_on_road[(thumb_h*4)+(off_y*5):(thumb_h*5)+(off_y*5), w-(thumb_w+off_x):w-off_x, :] = thumb_highlight
 
     # add text (curvature and offset info) on the upper right of the blend
     mean_curvature_meter = np.mean([Lcurve, Rcurve])
@@ -332,10 +327,25 @@ def process_image(img):
     reverse_view_img = bird_backward(highlight_lane_img)
     final_img = cv2.addWeighted(img, 1, reverse_view_img, 1, 0)
     #Step Five: Show Step By Step Frame, Curvature, and Distance of Center (((IF THE DEBUG FLAG EQUALS ONE)))
-    if(debug):
-      final_img = prepare_frame(final_img, bird_img, gray_img, lines_img, window_img, highlight_lane_img, Lc,Rc, pos )
+    final_img = prepare_frame(final_img, bird_img, gray_img, lines_img, window_img, highlight_lane_img, Lc,Rc, pos, debug)
     return final_img
 
-clip = VideoFileClip(inputPath)
+"""# Test Video:"""
+
+debug = 0  #FLAG
+src = "project_video.mp4"
+dest = "out_project_video.mp4"
+
+clip = VideoFileClip(src)
 out_clip = clip.fl_image(process_image)
-out_clip.write_videofile(outputPath, audio=False)
+out_clip.write_videofile(dest, audio=False)
+
+"""# Test Pictures:"""
+
+debug = 1  #FLAG
+
+images = glob.glob('./test_images/*.jpg')
+for fname in images:    
+        img = plt.imread(fname)
+        plt.imshow(process_image(img))
+        plt.show()
