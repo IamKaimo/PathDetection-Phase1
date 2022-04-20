@@ -7,7 +7,12 @@ Assume the camera is mounted at the center of the car, such that the lane center
 The offset of the lane center from the center of the image (converted from pixels to meters) is your distance from the center of the lane.
 
 
-
+# How to run :
+open git bash in the project folder and enter this line in it 
+use ./run.sh --src <src> --dst <dst> --debug <debug>
+* src is the input path
+* dst is the output path
+* debug is the debug mode(optional) 0 by default
 
 
 
