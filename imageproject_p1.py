@@ -22,6 +22,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 from moviepy.editor import VideoFileClip
+import sys
+inputPath = sys.argv[1]
+outputPath = sys.argv[2]
+debug = int(sys.argv[3])
 
 """# Step 1: Prespective Transformation Function (Bird's Eye)"""
 
@@ -330,22 +334,11 @@ def process_image(img):
     final_img = prepare_frame(final_img, bird_img, gray_img, lines_img, window_img, highlight_lane_img, Lc,Rc, pos, debug)
     return final_img
 
-"""# Test Video:"""
 
-debug = 0  #FLAG
-src = "project_video.mp4"
-dest = "out_project_video.mp4"
 
-clip = VideoFileClip(src)
+clip = VideoFileClip(inputPath)
 out_clip = clip.fl_image(process_image)
-out_clip.write_videofile(dest, audio=False)
+out_clip.write_videofile(outputPath, audio=False)
 
-"""# Test Pictures:"""
 
-debug = 1  #FLAG
-
-images = glob.glob('./test_images/*.jpg')
-for fname in images:    
-        img = plt.imread(fname)
-        plt.imshow(process_image(img))
-        plt.show()
+    
