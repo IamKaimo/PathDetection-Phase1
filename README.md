@@ -1,4 +1,4 @@
-# **Image Project Phase one: Lane Detection**
+# **Imaage Project Phase one: Lane Detection**
 the goal is to write a software pipeline to detect the lane boundaries in a video from a front-facing camera on a car. it’s required to find and track the lane lines and the position of the car from the center of the lane.
 As a bonus, track the radius of curvature of the road too.
 
